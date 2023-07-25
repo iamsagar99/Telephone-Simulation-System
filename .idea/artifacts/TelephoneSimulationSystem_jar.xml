@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="TelephoneSimulationSystem:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/TelephoneSimulationSystem_jar</output-path>
+    <root id="archive" name="TelephoneSimulationSystem.jar">
+      <element id="module-output" name="TelephoneSimulationSystem" />
+    </root>
+  </artifact>
+</component>
