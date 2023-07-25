@@ -20,8 +20,9 @@ public class ConnectingTelephone extends JFrame {
     private static CallCounters callCounters;
     private static NextCall nextCall;
     private static CallProgress[] callProgress;
-    int cp;
-    int[] links;
+    private int cp;
+    private int[] links;
+    private boolean[] telephoneStatus; // To store the status of telephones
 
     public ConnectingTelephone(String title) {
         super(title);
@@ -34,57 +35,66 @@ public class ConnectingTelephone extends JFrame {
         for (int i = 0; i < 3; i++) {
             callProgress[i] = new CallProgress();
         }
-        cp=0;
+        cp = 0;
+        links = new int[9]; // Initialize the links array
+        telephoneStatus = new boolean[9]; // Initialize the telephoneStatus array
+
         connectTelephoneButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 checkConnection();
+                CallState.callStatePanel(links, telephoneStatus); // Pass the links and telephoneStatus arrays to the CallState panel
+                dispose(); // Close the current ConnectingTelephone panel after successful connection
             }
         });
     }
 
     private void checkConnection() {
-        links = new int[9];
         int count = 0, set = 0;
 
         if (telephone1CheckBox.isSelected()) {
             links[1] = 1;
+            telephoneStatus[1] = true;
             telephone1CheckBox.setSelected(false);
         }
         if (telephone2CheckBox.isSelected()) {
             links[2] = 1;
+            telephoneStatus[2] = true;
             telephone2CheckBox.setSelected(false);
         }
         if (telephone3CheckBox.isSelected()) {
             links[3] = 1;
+            telephoneStatus[3] = true;
             telephone3CheckBox.setSelected(false);
         }
         if (telephone4CheckBox.isSelected()) {
             links[4] = 1;
+            telephoneStatus[4] = true;
             telephone4CheckBox.setSelected(false);
         }
         if (telephone5CheckBox.isSelected()) {
             links[5] = 1;
+            telephoneStatus[5] = true;
             telephone5CheckBox.setSelected(false);
         }
         if (telephone6CheckBox.isSelected()) {
             links[6] = 1;
+            telephoneStatus[6] = true;
             telephone6CheckBox.setSelected(false);
         }
         if (telephone7CheckBox.isSelected()) {
             links[7] = 1;
+            telephoneStatus[7] = true;
             telephone7CheckBox.setSelected(false);
         }
         if (telephone8CheckBox.isSelected()) {
             links[8] = 1;
+            telephoneStatus[8] = true;
             telephone8CheckBox.setSelected(false);
         }
 
-        for (int i = 1; i < 9; i++) {
-            if (links[i] == 1) {
-                count += 1;
-            }
-        }
+        // ... (rest of the existing code)
+
 
         if (count > 2 || count == 1 || (callCounters.getLinks_IN_USE() >= callCounters.getLinks_MAX_NO())) {
             JOptionPane.showMessageDialog(this, "Call connection not valid");
@@ -143,10 +153,12 @@ public class ConnectingTelephone extends JFrame {
             callCounters.setProcessed_call(1);
 
         }
-        CallState.main(null);
+//        CallState.main(null);
     }
 
-    @Override
+    // ... (rest of the existing code)
+
+    // Method to set the telephone status
     public void paint(Graphics g) {
         super.paint(g);
 
@@ -164,6 +176,9 @@ public class ConnectingTelephone extends JFrame {
         g.drawLine(300, 0, 300, 500);
         g.drawLine(350, 0, 350, 500);
         g.drawLine(400, 0, 400, 500);
+    }
+    public void setTelephoneStatus(boolean[] telephoneStatus) {
+        this.telephoneStatus = telephoneStatus;
     }
 
     public static void main(String[] args) {

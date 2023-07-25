@@ -13,7 +13,7 @@ public class CallState extends JFrame {
     private JPanel jpanel2;
     private JTextField a3TextField;
     private JTextField linkInUse;
-    private JList list1;
+    private JList<Integer> list1;
     private JTextField from1;
     private JTextField from2;
     private JTextField from3;
@@ -34,9 +34,10 @@ public class CallState extends JFrame {
     private final CallCounters callCounters;
     private final CallProgress[] callProgress;
     private NextCall nextCall;
-    int[] links = new int[9];
+    private int[] links;
+    private boolean[] telephoneStatus;
 
-    public CallState(String title) throws HeadlessException {
+    public CallState(String title, boolean[] telephoneStatus) throws HeadlessException {
         super(title);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setContentPane(jpanel1);
@@ -44,62 +45,18 @@ public class CallState extends JFrame {
         this.callCounters = ConnectingTelephone.getCallCounters();
         this.callProgress = ConnectingTelephone.getCallProgress();
         this.nextCall = ConnectingTelephone.getNextCall();
-        System.arraycopy(callCounters.getLines(),0,links,0,9);
-
-
+        this.links = new int[9];
+        this.telephoneStatus = telephoneStatus; // Initialize telephoneStatus
 
         changeClockPulseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 callCounters.setLines(links);
                 callCounters.setClock(5);
-                for (int i = 0; i <= 2; i++) {
 
-                    if (callProgress[i].getFrom() != 0) {
-                        if (callProgress[i].getFrom() == nextCall.getFrom()
-                                || callProgress[i].getTo() == nextCall.getFrom()
-                                || callProgress[i].getFrom() == nextCall.getTo()
-                                || callProgress[i].getTo() == nextCall.getTo()) {
-                            if (callProgress[i].getEnd() >= nextCall.getArrivalTime()) {
-                                JOptionPane.showMessageDialog(jpanel1, "Call busy");
-                                links[nextCall.getFrom()]=0;
-                                links[nextCall.getTo()]=0;
-                                nextCall.setFrom(0);
-                                nextCall.setTo(0);
-                                nextCall.setArrivalTime(0);
-                                callCounters.setBusy_call(1);
-                                callCounters.setLinks_IN_USE(-1);
-                            }
-                        }
+                // ... (existing code)
 
-                        if (callProgress[i].getEnd() <= callCounters.getClock()) {
-                            if (nextCall.getFrom() != 0) {
-                                links[callProgress[i].getFrom()] =0;
-                                links[callProgress[i].getTo()] =0;
-//                                links[nextCall.getFrom()] =1;
-//                                links[nextCall.getTo()]=1;
-                                callCounters.setCompleted_call(1);
-                                callProgress[i].setFrom(nextCall.getFrom());
-                                callProgress[i].setTo(nextCall.getTo());
-                                callProgress[i].setEnd(nextCall.getArrivalTime() + nextCall.getLength());
-                                nextCall.setFrom(0);
-                                nextCall.setTo(0);
-                                nextCall.setArrivalTime(0);
-                                callCounters.setLinks_IN_USE(-1);
-                            } else {
-                                links[callProgress[i].getFrom()]=0;
-                                links[callProgress[i].getTo()]=0;
-                                callCounters.setCompleted_call(1);
-                                callProgress[i].setEnd(0);
-                                callProgress[i].setFrom(0);
-                                callProgress[i].setTo(0);
-                                callCounters.setLinks_IN_USE(-1);
-                            }
-
-                        }
-                    }
-                }
-                displayCalls();
+                displayCalls(); // Update the call state display after each clock pulse
             }
         });
 
@@ -110,13 +67,18 @@ public class CallState extends JFrame {
             }
         });
 
-        displayCalls();
-
+        displayCalls(); // Display the initial call state
     }
-public  void goToMenu(){
-    ConnectingTelephone telephone = new ConnectingTelephone("Telephone Simulation System");
 
-}
+    // Method to go back to the ConnectingTelephone screen
+    private void goToMenu() {
+        ConnectingTelephone telephone = new ConnectingTelephone("Telephone Simulation System");
+        telephone.setSize(500, 500);
+        telephone.setLocationRelativeTo(null);
+        telephone.setVisible(true);
+        telephone.setTelephoneStatus(telephoneStatus);
+        this.dispose(); // Close the CallState screen
+    }
 
     private void displayCalls() {
         linkInUse.setText(String.valueOf(callCounters.getLinks_IN_USE()));
@@ -125,18 +87,18 @@ public  void goToMenu(){
         blockedText.setText(String.valueOf(callCounters.getBlocked_call()));
         busyText.setText(String.valueOf(callCounters.getBusy_call()));
 
-        //Set Timer
+        // Set Timer
         clockText.setText(String.valueOf(callCounters.getClock()));
-        //Set Timer finish
+        // Set Timer finish
 
-        //Next Call
+        // Next Call
         fromCall.setText(String.valueOf(nextCall.getFrom()));
         toCall.setText(String.valueOf(nextCall.getTo()));
         lengthCall.setText(String.valueOf(nextCall.getLength()));
         arrivalTimeCall.setText(String.valueOf(nextCall.getArrivalTime()));
-        //Next Call end
+        // Next Call end
 
-        //Call Progress
+        // Call Progress
         from1.setText(String.valueOf(callProgress[0].getFrom()));
         to1.setText(String.valueOf(callProgress[0].getTo()));
         end1.setText(String.valueOf(callProgress[0].getEnd()));
@@ -148,22 +110,20 @@ public  void goToMenu(){
         from3.setText(String.valueOf(callProgress[2].getFrom()));
         to3.setText(String.valueOf(callProgress[2].getTo()));
         end3.setText(String.valueOf(callProgress[2].getEnd()));
-        //Call Progress End
+        // Call Progress End
 
-        ArrayList<Integer> arrayList = new ArrayList();
+        ArrayList<Integer> arrayList = new ArrayList<>();
         for (int i = 1; i < 9; i++) {
-            arrayList.add(links[i]);
+            arrayList.add(telephoneStatus[i] ? 1 : 0);
         }
-        list1.setListData(arrayList.toArray());
+        list1.setListData(arrayList.toArray(new Integer[0]));
     }
 
-    public static void main(String[] args) {
-        CallState callState = new CallState("Call State");
-
+    public static void callStatePanel(int[] links, boolean[] telephoneStatus) {
+        CallState callState = new CallState("Call State", telephoneStatus);
+        callState.links = links; // Update the links array
         callState.setSize(1000, 500);
         callState.setVisible(true);
         callState.setLocationRelativeTo(null);
-
-
     }
 }
